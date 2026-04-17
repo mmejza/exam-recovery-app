@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OM Recovery Lab</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell" id="app-shell">
+    <header class="top-bar" id="top-bar">
+      <div class="tb-left">
+        <h1 class="tb-title">OM Recovery Lab</h1>
+        <span class="tb-token" id="tb-token">Token: -</span>
+      </div>
+      <div class="tb-right">
+        <span class="pill" id="tb-progress">Progress: 0/0</span>
+        <span class="pill" id="tb-timer">Time: 00:00</span>
+        <span class="pill" id="tb-save">Autosave: Idle</span>
+      </div>
+    </header>
+
+    <main id="app" class="app-main" aria-live="polite"></main>
+
+    <footer class="bottom-bar" id="bottom-bar">
+      <button id="btn-prev" class="btn btn-secondary" type="button">Previous</button>
+      <div class="bb-warning" id="bb-warning" role="status" aria-live="assertive"></div>
+      <button id="btn-next" class="btn btn-primary" type="button">Next</button>
+    </footer>
+  </div>
+
+  <script src="components/topbar.js"></script>
+  <script src="components/bottombar.js"></script>
+  <script src="components/numeric.js"></script>
+  <script src="components/numeric-calc-screen.js"></script>
+  <script src="components/dropdown-row.js"></script>
+  <script src="components/branch-decision.js"></script>
+  <script src="components/table-fill.js"></script>
+  <script src="components/chart-point-plot.js"></script>
+  <script src="components/dragdrop-classification.js"></script>
+  <script src="components/dragdrop.js"></script>
+  <script src="engine/session-store.js"></script>
+  <script src="engine/timer-engine.js"></script>
+  <script src="engine/rng.js"></script>
+  <script src="engine/scoring.js"></script>
+  <script src="engine/scoring.test-examples.js"></script>
+  <script src="scenarios/moduleA.js"></script>
+  <script src="scenarios/moduleB.js"></script>
+  <script src="scenarios/moduleC.js"></script>
+  <script src="scenarios/loader.js"></script>
+  <script src="scenarios/screens.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
