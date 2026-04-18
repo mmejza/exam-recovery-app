@@ -167,3 +167,46 @@ function doPost(e) {
     return jsonResponse({ success: false, message: err.message });
   }
 }
+
+
+// ---------------------------------------------------------------------------
+// doGet — returns attempt count for a student_id
+//
+// Usage: GET ?action=getAttemptCount&student_id=ABC123
+// Response: { "success": true, "count": 1 }
+// ---------------------------------------------------------------------------
+function doGet(e) {
+  try {
+    var params = (e && e.parameter) ? e.parameter : {};
+    var action = params.action || "";
+
+    if (action !== "getAttemptCount") {
+      return jsonResponse({ success: false, message: "Unknown action." });
+    }
+
+    var studentId = String(params.student_id || "").trim();
+    if (!studentId) {
+      return jsonResponse({ success: false, message: "Missing student_id." });
+    }
+
+    var sheet = getAttemptsSheet();
+    var data = sheet.getDataRange().getValues();
+
+    // Find the student_id column index (column 0 per COLUMNS definition)
+    var studentIdColIndex = COLUMNS.indexOf("student_id");
+    if (studentIdColIndex < 0) { studentIdColIndex = 0; }
+
+    // Count rows (skip header row 0) matching this student_id
+    var count = 0;
+    for (var i = 1; i < data.length; i++) {
+      if (String(data[i][studentIdColIndex]).trim() === studentId) {
+        count++;
+      }
+    }
+
+    return jsonResponse({ success: true, count: count });
+
+  } catch (err) {
+    return jsonResponse({ success: false, message: err.message });
+  }
+}

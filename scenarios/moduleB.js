@@ -20,7 +20,8 @@
           type: "choice",
           options: ["valve drift", "CO2 pressure spike", "operator reset", "sensor lag"]
         },
-        specialPointIndex: { type: "int", min: 8, max: 19 }
+        specialPointIndex: { type: "int", min: 8, max: 19 },
+        oocCount: { type: "choice", options: [1, 2, 3, 4] }
       },
       screens: [
         {
@@ -75,7 +76,8 @@
           type: "choice",
           options: ["scanner downtime", "barcode mismatch", "bin relabeling error", "network timeout"]
         },
-        sampleSize: { type: "int", min: 40, max: 90 }
+        sampleSize: { type: "int", min: 40, max: 90 },
+        oocCount: { type: "choice", options: [1, 2, 3, 4] }
       },
       screens: [
         {

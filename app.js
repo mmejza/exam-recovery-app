@@ -374,28 +374,50 @@
         return;
       }
 
-      state.studentToken = token;
-      state.consentAccepted = true;
-      if (!state.appStartIso) {
-        state.appStartIso = new Date().toISOString();
-      }
-      state.attemptNumber = resolveAttemptNumber(token);
+      startBtn.disabled = true;
+      startBtn.textContent = "Checking eligibility...";
 
-      if (!state.overallSecondsLeft || state.overallSecondsLeft <= 0) {
-        state.overallSecondsLeft = OVERALL_LIMIT_SECONDS;
-      }
-      if (!state.moduleSecondsLeft || state.moduleSecondsLeft <= 0) {
-        state.moduleSecondsLeft = MODULE_LIMIT_SECONDS;
-      }
+      checkAttemptLimit(token, function (allowed, count) {
+        if (!allowed) {
+          startBtn.disabled = true;
+          startBtn.textContent = "Attempt Limit Reached";
+          const existingMsg = document.getElementById("attempt-limit-msg");
+          if (!existingMsg) {
+            const msg = document.createElement("p");
+            msg.id = "attempt-limit-msg";
+            msg.style.color = "#c0392b";
+            msg.style.fontWeight = "bold";
+            msg.style.marginTop = "0.75rem";
+            msg.textContent = "You have already completed " + count + " attempt(s). The maximum is 2. Contact your instructor if you believe this is an error.";
+            startBtn.parentNode.insertBefore(msg, startBtn.nextSibling);
+          }
+          return;
+        }
 
-      persistState(false);
+        // Eligible — proceed with normal start flow
+        state.studentToken = token;
+        state.consentAccepted = true;
+        if (!state.appStartIso) {
+          state.appStartIso = new Date().toISOString();
+        }
+        state.attemptNumber = count + 1;
 
-      if (!state.moduleSubmitted) {
-        initializeModuleForStudent(token);
-        startDualTimers();
-      }
+        if (!state.overallSecondsLeft || state.overallSecondsLeft <= 0) {
+          state.overallSecondsLeft = OVERALL_LIMIT_SECONDS;
+        }
+        if (!state.moduleSecondsLeft || state.moduleSecondsLeft <= 0) {
+          state.moduleSecondsLeft = MODULE_LIMIT_SECONDS;
+        }
+
+        persistState(false);
+
+        if (!state.moduleSubmitted) {
+          initializeModuleForStudent(token);
+          startDualTimers();
+        }
 
         goTo(state.screenOrder[0]);
+      });
     });
   }
 
@@ -748,18 +770,19 @@
     const cl = roundTo(meanFill, 2);
     const ucl = roundTo(cl + 3 * sigma, 3);
     const lclChart = roundTo(cl - 3 * sigma, 3);
-    // 8 sample means: positions 3 and 7 (1-indexed) are OOC
-    const sampleMeans = [
-      roundTo(cl + 0.5 * sigma, 3),
-      roundTo(cl - 1.2 * sigma, 3),
-      roundTo(cl + 3.5 * sigma, 3),
-      roundTo(cl + 0.8 * sigma, 3),
-      roundTo(cl - 0.3 * sigma, 3),
-      roundTo(cl + 0.6 * sigma, 3),
-      roundTo(cl - 3.8 * sigma, 3),
-      roundTo(cl + 1.1 * sigma, 3)
-    ];
-    const oocCount = 2;
+    // Seeded OOC count: 1-4 points placed outside limits.
+    // OOC candidate slots (0-indexed): 2, 6, 4, 0 (i.e., positions 3, 7, 5, 1).
+    // OOC values alternate above/below: +3.5σ, -3.8σ, +3.6σ, -3.4σ
+    const oocCount = Number(getScenarioVar(scenario, "oocCount", 2));
+    const OOC_SLOTS   = [2, 6, 4, 0];
+    const OOC_OFFSETS = [3.5, -3.8, 3.6, -3.4];
+    // Base in-control offsets for all 8 positions
+    const baseOffsets = [0.5, -1.2, 0.8, 1.1, -0.3, 0.6, -1.5, 0.9];
+    const rawOffsets  = baseOffsets.slice();
+    for (var _i = 0; _i < oocCount; _i++) {
+      rawOffsets[OOC_SLOTS[_i]] = OOC_OFFSETS[_i];
+    }
+    const sampleMeans = rawOffsets.map(function (off) { return roundTo(cl + off * sigma, 3); });
     const sampleRows = sampleMeans.map(function (v, i) { return [String(i + 1), String(v)]; });
 
     // --- p-Chart (B-05) ---
@@ -1090,6 +1113,11 @@
       "      <button class='btn btn-secondary' id='btn-export-csv' type='button'>Download CSV</button>" +
       "    </div>" +
       "    <p class='widget-note' id='export-status'></p>" +
+      "    <hr style='margin:1.5rem 0' />" +
+      "    <h3>Start a New Attempt</h3>" +
+      "    <p class='widget-note'>You may take up to 2 attempts. Starting a new attempt will clear this session.</p>" +
+      "    <button class='btn btn-secondary' id='btn-new-attempt' type='button'>Start New Attempt</button>" +
+      "    <p class='widget-note' id='new-attempt-status'></p>" +
       "  </section>"
       : pendingModules;
 
@@ -1181,6 +1209,30 @@
           const fileName = buildExportFileName("csv");
           triggerDownload(fileName, csv, "text/csv;charset=utf-8");
           exportStatus.textContent = "CSV export downloaded.";
+        });
+      }
+
+      const newAttemptBtn = document.getElementById("btn-new-attempt");
+      const newAttemptStatus = document.getElementById("new-attempt-status");
+      if (newAttemptBtn) {
+        newAttemptBtn.addEventListener("click", function () {
+          const token = String(state.studentToken || "").trim();
+          newAttemptBtn.disabled = true;
+          newAttemptBtn.textContent = "Checking eligibility...";
+          checkAttemptLimit(token, function (allowed, count) {
+            if (!allowed) {
+              newAttemptBtn.textContent = "Attempt Limit Reached";
+              if (newAttemptStatus) {
+                newAttemptStatus.style.color = "#c0392b";
+                newAttemptStatus.textContent = "You have already used " + count + " of 2 allowed attempts.";
+              }
+              return;
+            }
+            // Eligible — navigate to reset URL to start fresh
+            const url = new URL(window.location.href);
+            url.searchParams.set("reset", "1");
+            window.location.href = url.toString();
+          });
         });
       }
     }
@@ -1566,6 +1618,32 @@
       recoveryCreditPercent: recoveryCreditPercent,
       encouragementMessage: buildEncouragementMessage(overallScore)
     };
+  }
+
+  /**
+   * checkAttemptLimit
+   * Queries the backend for how many completed attempts exist for this student.
+   * Calls callback(allowed: boolean, count: number).
+   * Falls back to allowing the attempt if the network call fails.
+   */
+  function checkAttemptLimit(studentToken, callback) {
+    var MAX_ATTEMPTS = 2;
+    var token = String(studentToken || "").trim();
+    if (!token) {
+      callback(true, 0);
+      return;
+    }
+    var url = "https://om-recovery-worker.michael-mejza.workers.dev/attempts?student_id=" + encodeURIComponent(token);
+    fetch(url, { method: "GET" })
+      .then(function (res) { return res.json(); })
+      .then(function (body) {
+        var count = Number(body && body.count) || 0;
+        callback(count < MAX_ATTEMPTS, count);
+      })
+      .catch(function (err) {
+        console.warn("checkAttemptLimit: network error, allowing attempt.", err);
+        callback(true, 0);
+      });
   }
 
   /**
