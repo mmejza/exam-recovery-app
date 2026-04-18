@@ -1,0 +1,206 @@
+export default {
+  async fetch(request, env) {
+    if (request.method === "OPTIONS") {
+      return new Response(null, { headers: corsHeaders() });
+    }
+
+    const url = new URL(request.url);
+
+    if (url.pathname === "/submit" && request.method === "POST") {
+      return handleSubmit(request, env);
+    }
+
+    if (url.pathname === "/attempts" && request.method === "GET") {
+      return handleAttemptCount(request, env);
+    }
+
+    return jsonResponse(
+      { success: false, message: "Not found" },
+      404
+    );
+  }
+};
+
+async function handleAttemptCount(request, env) {
+  try {
+    const url = new URL(request.url);
+    const studentId = url.searchParams.get("student_id") || "";
+    if (!studentId) {
+      return jsonResponse({ success: false, message: "Missing student_id" }, 400);
+    }
+
+    const scriptUrl =
+      env.GOOGLE_SCRIPT_URL +
+      "?action=getAttemptCount&student_id=" +
+      encodeURIComponent(studentId);
+
+    const resp = await fetch(scriptUrl, { method: "GET", redirect: "follow" });
+    const text = await resp.text();
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      throw new Error(`Google Script did not return valid JSON: ${text}`);
+    }
+
+    return jsonResponse(parsed);
+  } catch (err) {
+    return jsonResponse({ success: false, message: err.message || "Worker error" }, 500);
+  }
+}
+
+async function handleSubmit(request, env) {
+  try {
+    const body = await request.json();
+
+    const required = [
+      "student_id",
+      "canvas_user_id",
+      "attempt_number",
+      "seed",
+      "module_a",
+      "module_b",
+      "module_c",
+      "app_score",
+      "recovery"
+    ];
+
+    for (const field of required) {
+      if (body[field] === undefined || body[field] === null || body[field] === "") {
+        return jsonResponse(
+          { success: false, message: `Missing required field: ${field}` },
+          400
+        );
+      }
+    }
+
+    if (Number(body.attempt_number) > 2) {
+      return jsonResponse(
+        { success: false, message: "Attempt limit exceeded" },
+        403
+      );
+    }
+
+    const sheetResult = await writeToGoogleSheet(body, env);
+    const canvasResult = await postGradeToCanvas(body.canvas_user_id, body.recovery, env);
+
+    return jsonResponse({
+      success: true,
+      message: "Submission recorded and grade posted",
+      sheetResult,
+      canvasResult
+    });
+  } catch (err) {
+    return jsonResponse(
+      {
+        success: false,
+        message: err.message || "Worker error",
+        stack: err.stack || ""
+      },
+      500
+    );
+  }
+}
+
+async function writeToGoogleSheet(data, env) {
+  const response = await fetch(env.GOOGLE_SCRIPT_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      student_id: data.student_id,
+      canvas_user_id: data.canvas_user_id,
+      attempt_number: data.attempt_number,
+      seed: data.seed,
+      module_a: data.module_a,
+      module_b: data.module_b,
+      module_c: data.module_c,
+      app_score: data.app_score,
+      recovery: data.recovery,
+      status: "submitted",
+      started_at: data.started_at || ""
+    })
+  });
+
+  const text = await response.text();
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new Error(`Google Script did not return valid JSON: ${text}`);
+  }
+
+  if (!parsed.success) {
+    throw new Error(parsed.message || "Failed to write to Google Sheet");
+  }
+
+  return parsed;
+}
+
+async function postGradeToCanvas(canvasUserId, recoveryPoints, env) {
+  const canvasBase = String(env.CANVAS_BASE || "").trim();
+  const courseId = String(env.COURSE_ID || "").trim();
+  const assignmentId = String(env.ASSIGNMENT_ID || "").trim();
+  const token = String(env.CANVAS_TOKEN || "").trim();
+
+  if (!canvasBase) throw new Error("Missing CANVAS_BASE");
+  if (!courseId) throw new Error("Missing COURSE_ID");
+  if (!assignmentId) throw new Error("Missing ASSIGNMENT_ID");
+  if (!token) throw new Error("Missing CANVAS_TOKEN");
+
+  const endpoint =
+    `${canvasBase}/api/v1/courses/${courseId}` +
+    `/assignments/${assignmentId}/submissions/update_grades`;
+
+  const payload = {
+    grade_data: {
+      [String(canvasUserId)]: {
+        posted_grade: recoveryPoints
+      }
+    }
+  };
+
+  const authHeader = "Bearer " + token;
+
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Authorization": authHeader,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const text = await response.text();
+
+  if (!response.ok) {
+    throw new Error(
+      `Canvas grade post failed | status=${response.status} | endpoint=${endpoint} | response=${text}`
+    );
+  }
+
+  return {
+    ok: true,
+    endpoint,
+    responseText: text
+  };
+}
+
+function jsonResponse(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      ...corsHeaders()
+    }
+  });
+}
+
+function corsHeaders() {
+  return {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type"
+  };
+}
