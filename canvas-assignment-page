@@ -1,0 +1,167 @@
+<div style="max-width: 900px; margin: 0 auto; font-family: Arial, sans-serif; line-height: 1.65; color: #1f2937;">
+    <div style="background: #0f172a; color: white; padding: 26px 30px; border-radius: 14px; margin-bottom: 20px;">
+        <div style="font-size: 13px;">Exam Recovery Activity</div>
+        <h1 style="margin: 6px 0 10px 0; font-size: 30px;">OM Recovery Lab</h1>
+        <p style="margin: 0; font-size: 16px; max-width: 760px;">This activity gives you an opportunity to recover a portion of the points lost on Exam #2 by demonstrating your ability to apply key operations management concepts in timed, interactive scenarios.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-bottom: 20px;">
+        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 16px;">
+            <div style="font-size: 12px; color: #1d4ed8; margin-bottom: 6px;">Attempts</div>
+            <div style="font-size: 22px;">Up to 2</div>
+            <div style="font-size: 14px;">Highest score counts</div>
+        </div>
+        <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 16px;">
+            <div style="font-size: 12px; color: #047857; margin-bottom: 6px;">Time</div>
+            <div style="font-size: 22px;">45 Minutes</div>
+            <div style="font-size: 14px;">15 minutes per module</div>
+        </div>
+        <div style="background: #fff7ed; border: 1px solid #fdba74; border-radius: 12px; padding: 16px;">
+            <div style="font-size: 12px; color: #c2410c; margin-bottom: 6px;">Format</div>
+            <div style="font-size: 22px;">Auto-Graded</div>
+            <div style="font-size: 14px;">Interactive scenario-based modules</div>
+        </div>
+        <div style="background: #f5f3ff; border: 1px solid #c4b5fd; border-radius: 12px; padding: 16px;">
+            <div style="font-size: 12px; color: #6d28d9; margin-bottom: 6px;">Resources</div>
+            <div style="font-size: 22px;">Open-Resource</div>
+            <div style="font-size: 14px;">Textbook, notes, and slides allowed</div>
+        </div>
+    </div>
+    <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 22px; margin-bottom: 18px;">
+        <h2 style="margin-top: 0; font-size: 22px;">Purpose</h2>
+        <p>This activity is designed to give you a structured opportunity to demonstrate stronger understanding of the concepts assessed on Exam #2. Rather than repeating the original exam, you will complete three new scenario-based modules that require you to analyze situations, perform calculations, interpret results, and make sound operations decisions.</p>
+    </div>
+    <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 22px; margin-bottom: 18px;">
+        <h2 style="margin-top: 0; font-size: 22px;">Modules</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
+            <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px;">
+                <h3 style="margin: 0 0 8px 0; font-size: 18px;">Module A: Lean Operations</h3>
+                <p style="margin: 0;">Topics may include waste, value-added work, takt time, manpower, kanban, and flow-related decision making.</p>
+            </div>
+            <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px;">
+                <h3 style="margin: 0 0 8px 0; font-size: 18px;">Module B: Quality &amp; SPC</h3>
+                <p style="margin: 0;">Topics may include variation, capability, control charts, p-charts, and identifying abnormal process behavior.</p>
+            </div>
+            <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px;">
+                <h3 style="margin: 0 0 8px 0; font-size: 18px;">Module C: Inventory &amp; Supply Chain</h3>
+                <p style="margin: 0;">Topics may include inventory types, turns, days-of-supply, holding cost, and supply chain tradeoffs.</p>
+            </div>
+        </div>
+    </div>
+    <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 22px; margin-bottom: 18px;">
+        <h2 style="margin-top: 0; font-size: 22px; color: #1e3a8a;">How It Works</h2>
+        <ul style="margin: 10px 0 0 20px; padding: 0;">
+            <li>You will complete <strong>three timed modules</strong>.</li>
+            <li>Each module is limited to <strong>15 minutes</strong>.</li>
+            <li>Each attempt must be completed in <strong>one continuous 45-minute session</strong>.</li>
+            <li>Your responses are <strong>automatically graded</strong>.</li>
+            <li>Your overall app score determines how many exam points you recover.</li>
+        </ul>
+    </div>
+    <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 22px; margin-bottom: 18px;">
+        <h2 style="margin-top: 0; font-size: 22px;">Attempts and Timing</h2>
+        <ul style="margin: 10px 0 0 20px; padding: 0;">
+            <li>You may complete this activity <strong>up to two times</strong>.</li>
+            <li><strong>Each attempt must be completed in one continuous 45-minute session.</strong></li>
+            <li>If you choose to make a second attempt, it must be completed in a <strong>separate session</strong>.</li>
+            <li>Each attempt uses a <strong>different scenario</strong>.</li>
+            <li>Your <strong>highest score</strong> will be used to determine your recovery credit.</li>
+            <li>You will <strong>not see detailed correct answers</strong> between attempts.</li>
+        </ul>
+        <p style="margin-bottom: 0; margin-top: 14px;"><strong>You do not need to complete both attempts.</strong> Many students will only need one attempt.</p>
+    </div>
+    <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 22px; margin-bottom: 18px;">
+        <h2 style="margin-top: 0; font-size: 22px;">Use of Resources</h2>
+        <p>You may use:</p>
+        <ul style="margin: 8px 0 14px 20px; padding: 0;">
+            <li>your textbook</li>
+            <li>your notes</li>
+            <li>course slides</li>
+        </ul>
+        <p style="margin-bottom: 0;">This is an open-resource activity. However, each student receives a different scenario, and the time limits are designed so that success depends on applying concepts efficiently and accurately, not on searching for every step.</p>
+    </div>
+    <div style="background: #fff7ed; border: 1px solid #fdba74; border-radius: 12px; padding: 22px; margin-bottom: 18px;">
+        <h2 style="margin-top: 0; font-size: 22px; color: #9a3412;">Important Rules</h2>
+        <ul style="margin: 10px 0 0 20px; padding: 0;">
+            <li>This is an <strong>individual assignment</strong>.</li>
+            <li>Collaboration during the activity is <strong>not allowed</strong>.</li>
+            <li>Once you begin an attempt, the timer continues running even if you leave the page.</li>
+            <li>If time expires, your current answers will be <strong>submitted automatically</strong>.</li>
+            <li>Your progress may save as you work, but each attempt still counts as a timed, continuous session.</li>
+        </ul>
+    </div>
+    <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 22px; margin-bottom: 18px;">
+        <h2 style="margin-top: 0; font-size: 22px;">What You Will Be Asked to Do</h2>
+        <ul style="margin: 10px 0 0 20px; padding: 0;">
+            <li>identify types of waste and value-added work</li>
+            <li>compute takt time, manpower, and kanban levels</li>
+            <li>analyze variation and interpret control charts</li>
+            <li>evaluate process capability</li>
+            <li>compute inventory turns, days-of-supply, and holding costs</li>
+            <li>assess supply chain decisions and tradeoffs</li>
+        </ul>
+    </div>
+    <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 22px; margin-bottom: 18px;">
+        <h2 style="margin-top: 0; font-size: 22px;">Pacing Guidance</h2>
+        <p style="margin-top: 0;">Plan for approximately <strong>3&ndash;4 minutes per major task</strong> within each module.</p>
+        <p style="margin-bottom: 0;">The time limits are intended to reward students who can recognize the correct method, apply it accurately, and interpret results in context.</p>
+    </div>
+    <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 22px; margin-bottom: 18px;">
+        <h2 style="margin-top: 0; font-size: 22px; color: #065f46;">Scoring and Point Recovery</h2>
+        <p>Your final score on this activity determines how many exam points you recover.</p>
+        <div style="overflow-x: auto; margin-top: 14px;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 15px;">
+                <thead>
+                    <tr style="background: #d1fae5;">
+                        <th style="text-align: left; padding: 12px; border: 1px solid #a7f3d0;">App Score</th>
+                        <th style="text-align: left; padding: 12px; border: 1px solid #a7f3d0;">Points Recovered</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;"><strong>85&ndash;100</strong></td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">Recover <strong>40%</strong> of lost exam points</td>
+                    </tr>
+                    <tr style="background: #f9fafb;">
+                        <td style="padding: 12px; border: 1px solid #d1d5db;"><strong>75&ndash;84</strong></td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">Recover <strong>30%</strong> of lost exam points</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;"><strong>65&ndash;74</strong></td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">Recover <strong>20%</strong> of lost exam points</td>
+                    </tr>
+                    <tr style="background: #f9fafb;">
+                        <td style="padding: 12px; border: 1px solid #d1d5db;"><strong>55&ndash;64</strong></td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">Recover <strong>10%</strong> of lost exam points</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;"><strong>Below 55</strong></td>
+                        <td style="padding: 12px; border: 1px solid #d1d5db;">No recovery</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 22px; margin-bottom: 18px;">
+        <h2 style="margin-top: 0; font-size: 22px;">What Success Looks Like</h2>
+        <ul style="margin: 10px 0 0 20px; padding: 0;">
+            <li>choosing the correct method, not just recognizing a formula</li>
+            <li>applying concepts accurately to new data</li>
+            <li>interpreting results in context</li>
+            <li>making consistent, logical decisions</li>
+        </ul>
+    </div>
+    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 22px; margin-bottom: 20px;">
+        <h2 style="margin-top: 0; font-size: 22px;">Before You Begin</h2>
+        <ul style="margin: 10px 0 0 20px; padding: 0;">
+            <li>Have a calculator ready.</li>
+            <li>Be in a distraction-free environment.</li>
+            <li>Make sure you can complete the attempt in one sitting.</li>
+            <li>Have your textbook, notes, and slides available if you want to use them.</li>
+        </ul>
+    </div>
+    <div style="background: #0f172a; color: white; border-radius: 14px; padding: 22px 26px; text-align: center;">
+        <h2 style="margin: 0 0 8px 0; font-size: 24px;">Ready to Start?</h2>
+        <p style="margin: 0 0 14px 0;">When you begin, your attempt will start, the timer will run, and your scenario will be generated.</p>
+        <p style="margin: 0; font-size: 16px;"><strong>Click &ldquo;Begin&rdquo; only when you are fully ready.</strong></p>
+    </div>
+</div>
