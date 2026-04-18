@@ -345,7 +345,7 @@
       "    </ul>" +
       "  </div>" +
       "  <div class='form-row'>" +
-      "    <label for='student-token'>Student Token</label>" +
+      "    <label for='student-token'>Student ID No.</label>" +
       "    <input id='student-token' type='text' placeholder='Enter your token' value='" + escapeHtml(state.studentToken) + "' />" +
       "  </div>" +
       "  <div class='consent-row'>" +
@@ -551,18 +551,22 @@
         { id: "trim", label: "Trimming final brochure edges" },
         { id: "rush", label: "Interrupting queue for urgent re-run" },
         { id: "proof", label: "Customer proof confirmation" },
-        { id: "idle", label: "Idle waiting at bottleneck station" }
+        { id: "idle", label: "Idle waiting at bottleneck station" },
+        { id: "inspect", label: "Final quality check before customer handoff" },
+        { id: "search", label: "Searching for misplaced job order" }
       ]
       : [
         { id: "seal", label: "Sealing meal-kit carton" },
         { id: "wait", label: "Waiting for refill/reset" },
         { id: "pick", label: "Picking recipe inserts" },
-        { id: "recount", label: "Recounting due to mismatch" }
+        { id: "recount", label: "Recounting due to mismatch" },
+        { id: "label", label: "Applying shipping label to sealed box" },
+        { id: "rework", label: "Replacing incorrect item found during check" }
       ];
 
     const wasteKey = isPrintShop
-      ? { trim: "va", proof: "va", rush: "waste", idle: "waste" }
-      : { seal: "va", pick: "va", wait: "waste", recount: "waste" };
+      ? { trim: "va", proof: "va", inspect: "va", rush: "waste", idle: "waste", search: "waste" }
+      : { seal: "va", pick: "va", label: "va", wait: "waste", recount: "waste", rework: "waste" };
 
     const introId = "a01-intro";
     const q1Id = "a02-waste";
