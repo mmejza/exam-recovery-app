@@ -1571,7 +1571,7 @@
     var payload = {
       action:         "submitAttempt",
       student_id:     studentId,
-      canvas_user_id: canvasUserId,
+      canvas_user_id: canvasUserId || "unset",
       attempt_number: attemptNumber,
       seed:           seed,
       module_a:       moduleAScore,
