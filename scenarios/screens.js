@@ -95,12 +95,14 @@
       };
     });
 
-    const dropdownRows = [
+    const dropdownRows = seeded.shuffle([
       { id: "r_cycle", label: "Batch replenishment stock for regular order quantity" },
       { id: "r_safety", label: "Buffer stock for demand and lead-time uncertainty" },
       { id: "r_pipeline", label: "Inventory currently in transit to destination" },
-      { id: "r_decouple", label: "Inventory that isolates upstream/downstream stage mismatch" }
-    ];
+      { id: "r_decouple", label: "Inventory that isolates upstream/downstream stage mismatch" },
+      { id: "r_anticipation", label: "Stock built up in advance of a forecasted seasonal demand peak" },
+      { id: "r_pipeline2", label: "Ordered goods awaiting arrival after supplier shipment confirmation" }
+    ]);
 
     const dropdownChoices = [
       { value: "cycle", label: "Cycle stock for replenishment rhythm" },
@@ -113,7 +115,9 @@
       r_cycle: "cycle",
       r_safety: "safety",
       r_pipeline: "pipeline",
-      r_decouple: "decoupling"
+      r_decouple: "decoupling",
+      r_anticipation: "cycle",
+      r_pipeline2: "pipeline"
     };
 
     const screens = [
@@ -141,7 +145,7 @@
         grading: {
           itemId: "c02_dropdown",
           answerKey: dropdownAnswerKey,
-          maxScore: 4
+          maxScore: 6
         }
       },
       {

@@ -112,5 +112,116 @@
         }
       ]
     }
+    ,
+    {
+      templateId: "A3-clinic-patient-discharge",
+      title: "Outpatient Clinic Discharge Flow",
+      context: "A busy outpatient clinic wants to reduce patient wait time after treatment by streamlining its discharge process before the afternoon rush.",
+      learningTargets: [
+        "Identify value-added vs non-value-added activity",
+        "Compute takt time and staffing need",
+        "Estimate flow efficiency"
+      ],
+      randomVars: {
+        dailyPatients: { type: "int", min: 120, max: 260 },
+        clinicMinutes: { type: "int", min: 420, max: 510 },
+        totalWorkContent: { type: "int", min: 80, max: 160 },
+        vaMinutes: { type: "int", min: 35, max: 85 },
+        nvaMinutes: { type: "int", min: 18, max: 68 },
+        delayReason: {
+          type: "choice",
+          options: ["prescription printout queue", "insurance verification hold", "room turnover wait", "chart retrieval delay"]
+        }
+      },
+      screens: [
+        {
+          id: "A3-S1",
+          type: "numeric",
+          title: "Takt Time",
+          prompt: "Compute takt time in minutes per patient.",
+          formula: "Takt = clinicMinutes / dailyPatients",
+          hints: ["Use {{clinicMinutes}} available minutes and {{dailyPatients}} patients."]
+        },
+        {
+          id: "A3-S2",
+          type: "dragdrop",
+          title: "Waste Sorting",
+          prompt: "Sort each discharge activity into Value-Added or Waste.",
+          zones: [
+            { id: "va", label: "Value-Added" },
+            { id: "waste", label: "Waste" }
+          ],
+          items: [
+            { id: "instruct", label: "Nurse reviewing discharge instructions with patient" },
+            { id: "wait", label: "Patient waiting due to {{delayReason}}" },
+            { id: "rx", label: "Pharmacist dispensing prescribed medication" },
+            { id: "reenter", label: "Re-entering data already captured during intake" }
+          ]
+        }
+      ],
+      branchRules: [
+        {
+          ruleId: "A3-low-flow-efficiency",
+          when: "vaMinutes / (vaMinutes + nvaMinutes) < 0.55",
+          gotoScreenId: "A3-S2",
+          note: "Emphasize waste sorting when flow efficiency is low."
+        }
+      ]
+    },
+    {
+      templateId: "A4-fulfillment-center-packing",
+      title: "E-Commerce Fulfillment Center Packing Line",
+      context: "An e-commerce fulfillment center is preparing for a peak sales period and needs to rebalance its packing line to hit daily shipment targets.",
+      learningTargets: [
+        "Identify value-added vs non-value-added activity",
+        "Compute takt time and staffing need",
+        "Estimate flow efficiency"
+      ],
+      randomVars: {
+        ordersPerShift: { type: "int", min: 800, max: 1800 },
+        shiftMinutes: { type: "int", min: 420, max: 480 },
+        totalWorkContent: { type: "int", min: 90, max: 175 },
+        vaMinutes: { type: "int", min: 40, max: 90 },
+        nvaMinutes: { type: "int", min: 20, max: 72 },
+        delayReason: {
+          type: "choice",
+          options: ["conveyor jam", "tape gun refill", "label misread", "bin replenishment pause"]
+        }
+      },
+      screens: [
+        {
+          id: "A4-S1",
+          type: "numeric",
+          title: "Takt Time",
+          prompt: "Compute takt time in minutes per order for the shift.",
+          formula: "Takt = shiftMinutes / ordersPerShift",
+          hints: ["Use {{shiftMinutes}} and {{ordersPerShift}}."]
+        },
+        {
+          id: "A4-S2",
+          type: "dragdrop",
+          title: "Waste Sorting",
+          prompt: "Sort each packing line activity into Value-Added or Waste.",
+          zones: [
+            { id: "va", label: "Value-Added" },
+            { id: "waste", label: "Waste" }
+          ],
+          items: [
+            { id: "pack", label: "Placing items into shipping carton" },
+            { id: "wait", label: "Line stoppage due to {{delayReason}}" },
+            { id: "label", label: "Applying verified shipping label" },
+            { id: "search", label: "Searching for correct box size" }
+          ]
+        }
+      ],
+      branchRules: [
+        {
+          ruleId: "A4-low-flow-efficiency",
+          when: "vaMinutes / (vaMinutes + nvaMinutes) < 0.55",
+          gotoScreenId: "A4-S2",
+          note: "Emphasize waste sorting when flow efficiency is low."
+        }
+      ]
+    }
   ];
 })(typeof window !== "undefined" ? window : globalThis);
