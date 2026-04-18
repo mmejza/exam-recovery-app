@@ -12,7 +12,7 @@ const ModuleC = (function () {
   const LABEL      = 'Module C — Inventory & Supply Chain';
   const SHORT      = 'Mod C: Inventory';
   const MOD_CLASS  = 'mod-c';
-  const TIME_LIMIT = 20 * 60;
+  const TIME_LIMIT = 15 * 60;
   const POINTS_EACH = 25;
 
   /* ── Inventory item pools ── */

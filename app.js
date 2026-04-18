@@ -2,7 +2,7 @@
   "use strict";
 
   const SCENARIO_SALT = "OM-C-MVP-2026";
-  const OVERALL_LIMIT_SECONDS = 30 * 60;
+  const OVERALL_LIMIT_SECONDS = 45 * 60;
   const MODULE_LIMIT_SECONDS = 16 * 60;
   const LOW_TIME_THRESHOLD_SECONDS = 90;
   const MODULE_SEQUENCE = ["A", "B", "C"];

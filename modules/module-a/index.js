@@ -12,7 +12,7 @@ const ModuleA = (function () {
   const LABEL      = 'Module A — Lean Operations';
   const SHORT      = 'Mod A: Lean';
   const MOD_CLASS  = 'mod-a';
-  const TIME_LIMIT = 20 * 60; // 20 minutes
+  const TIME_LIMIT = 15 * 60; // 15 minutes
   const POINTS_EACH = 25;     // 25 pts × 4 screens = 100 pts
 
   /* ── Item pools ── */
