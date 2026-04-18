@@ -230,9 +230,11 @@
     // caused by goTo() (i.e. the resolved route matches what is already current),
     // skip the redundant second render to avoid double-firing side effects such
     // as sendResultsToBackend.
-    if (resolved === state.currentScreen) {
+    // Exception: always render on the very first call (initialRenderDone is false).
+    if (resolved === state.currentScreen && applyRouteFromHash._initialRenderDone) {
       return;
     }
+    applyRouteFromHash._initialRenderDone = true;
 
     state.currentScreen = resolved;
     persistState(false);
