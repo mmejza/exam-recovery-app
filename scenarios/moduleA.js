@@ -14,13 +14,14 @@
       randomVars: {
         dailyDemand: { type: "int", min: 180, max: 320 },
         availableMinutes: { type: "int", min: 390, max: 450 },
-        totalWorkContent: { type: "int", min: 95, max: 170 },
+        totalWorkContent: { type: "choice", options: [110, 130, 150, 170] },
         vaMinutes: { type: "int", min: 38, max: 88 },
         nvaMinutes: { type: "int", min: 22, max: 74 },
         delayReason: {
           type: "choice",
           options: ["label reprint", "ingredient refill", "scanner reset", "tray shortage"]
-        }
+        },
+        kanbanAlpha: { type: "choice", options: [0.15, 0.10, 0.05, 0.03] }
       },
       screens: [
         {
@@ -75,7 +76,9 @@
         bottleneckStation: {
           type: "choice",
           options: ["wide-format printer", "cutting table", "binding station", "proof desk"]
-        }
+        },
+        totalWorkContent: { type: "choice", options: [110, 130, 150, 170] },
+        kanbanAlpha: { type: "choice", options: [0.15, 0.10, 0.05, 0.03] }
       },
       screens: [
         {
@@ -125,13 +128,14 @@
       randomVars: {
         dailyPatients: { type: "int", min: 120, max: 260 },
         clinicMinutes: { type: "int", min: 420, max: 510 },
-        totalWorkContent: { type: "int", min: 80, max: 160 },
+        totalWorkContent: { type: "choice", options: [110, 130, 150, 170] },
         vaMinutes: { type: "int", min: 35, max: 85 },
         nvaMinutes: { type: "int", min: 18, max: 68 },
         delayReason: {
           type: "choice",
           options: ["prescription printout queue", "insurance verification hold", "room turnover wait", "chart retrieval delay"]
-        }
+        },
+        kanbanAlpha: { type: "choice", options: [0.15, 0.10, 0.05, 0.03] }
       },
       screens: [
         {
@@ -180,13 +184,14 @@
       randomVars: {
         ordersPerShift: { type: "int", min: 800, max: 1800 },
         shiftMinutes: { type: "int", min: 420, max: 480 },
-        totalWorkContent: { type: "int", min: 90, max: 175 },
+        totalWorkContent: { type: "choice", options: [110, 130, 150, 170] },
         vaMinutes: { type: "int", min: 40, max: 90 },
         nvaMinutes: { type: "int", min: 20, max: 72 },
         delayReason: {
           type: "choice",
           options: ["conveyor jam", "tape gun refill", "label misread", "bin replenishment pause"]
-        }
+        },
+        kanbanAlpha: { type: "choice", options: [0.15, 0.10, 0.05, 0.03] }
       },
       screens: [
         {

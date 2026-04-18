@@ -400,10 +400,20 @@
   }
 
     function renderModuleIntro(screen) {
+      var scenarioBlock = "";
+      if (screen.scenarioTitle) {
+        scenarioBlock =
+          "<div class='policy-box'>" +
+          "  <strong>Scenario</strong>" +
+          "  <p class='widget-note'><strong>" + escapeHtml(screen.scenarioTitle) + "</strong></p>" +
+          (screen.scenarioDescription ? "  <p>" + escapeHtml(screen.scenarioDescription) + "</p>" : "") +
+          "</div>";
+      }
       appRoot.innerHTML = "" +
         "<section class='screen-card'>" +
         "  <h2>" + escapeHtml(screen.title) + "</h2>" +
         "  <p>" + escapeHtml(screen.intro || "Review the module overview, then continue when ready.") + "</p>" +
+        scenarioBlock +
         "  <div class='policy-box'>" +
         "    <strong>Current Module</strong>" +
         "    <p class='widget-note'>" + escapeHtml(screen.tag || ("Module " + state.activeModuleKey)) + "</p>" +
@@ -509,7 +519,7 @@
     // --- Kanban Cards (A-04) ---
     const demandPerHr = roundTo(demand / Math.max(0.01, availMin / 60), 1);
     const kanbanL = 2.0;
-    const kanbanAlpha = 0.15;
+    const kanbanAlpha = Number(getScenarioVar(scenario, "kanbanAlpha", 0.15));
     const kanbanC = Math.max(5, Math.round(demand / 20));
     const kanbanN = Math.ceil((demandPerHr * kanbanL * (1 + kanbanAlpha)) / Math.max(1, kanbanC));
 
@@ -546,7 +556,9 @@
         title: "A-01 Intro",
         tag: "Module A",
         type: "intro",
-        intro: "Module A covers lean waste classification, flow efficiency, kanban sizing, and takt-time-based manpower planning."
+        intro: "Module A covers lean waste classification, flow efficiency, kanban sizing, and takt-time-based manpower planning.",
+        scenarioTitle: title,
+        scenarioDescription: context
       },
       {
         id: q1Id,
@@ -704,18 +716,22 @@
         { id: "background", label: "Normal pick complexity mix" },
         { id: "incident", label: "Unexpected incident disruption" },
         { id: "staffmix", label: "Routine shift mix variation" },
-        { id: "labelswap", label: "Unexpected shelf label swap" }
+        { id: "labelswap", label: "Unexpected shelf label swap" },
+        { id: "trainingvar", label: "Slight variation from new staff training cycle" },
+        { id: "systemdown", label: "Inventory system outage halting picks" }
       ]
       : [
         { id: "noise", label: "Minor ambient vibration" },
         { id: "issue", label: "Shift-level disruption event" },
         { id: "wear", label: "Normal component wear" },
-        { id: "jam", label: "Sudden capper jam" }
+        { id: "jam", label: "Sudden capper jam" },
+        { id: "temp", label: "Normal seasonal temperature fluctuation" },
+        { id: "powerspike", label: "Unexpected power surge tripping equipment" }
       ];
 
     const answerKey = isPharmacy
-      ? { background: "common", staffmix: "common", incident: "assignable", labelswap: "assignable" }
-      : { noise: "common", wear: "common", issue: "assignable", jam: "assignable" };
+      ? { background: "common", staffmix: "common", trainingvar: "common", incident: "assignable", labelswap: "assignable", systemdown: "assignable" }
+      : { noise: "common", wear: "common", temp: "common", issue: "assignable", jam: "assignable", powerspike: "assignable" };
 
     // --- Process Capability (B-03): Cp & Cpk ---
     const usl = Number(getScenarioVar(scenario, "usl", 505));
@@ -778,7 +794,9 @@
         title: "B-01 Intro",
         tag: "Module B",
         type: "intro",
-        intro: "Module B covers process variation sources, capability indices (Cp & Cpk), control chart OOC identification, and p-chart construction."
+        intro: "Module B covers process variation sources, capability indices (Cp & Cpk), control chart OOC identification, and p-chart construction.",
+        scenarioTitle: title,
+        scenarioDescription: context
       },
       {
         id: q1Id,

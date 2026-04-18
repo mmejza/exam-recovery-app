@@ -124,9 +124,11 @@
       {
         id: SCREEN_IDS.intro,
         title: "C-01 Intro",
-        intro: "Module C MVP focuses on inventory roles, turnover, holding cost, and speed-inventory tradeoffs. Complete C-02 through C-05 for auto-graded credit.",
+        intro: "Module C covers inventory classification, turnover metrics, holding cost, EOQ-based order policy, and speed-inventory tradeoffs.",
         tag: "Module C",
-        type: "intro"
+        type: "intro",
+        scenarioTitle: scenario && scenario.title ? scenario.title : "SwiftFlow Electronics",
+        scenarioDescription: scenario && scenario.context ? scenario.context : "A multi-product electronics distributor managing inventory policy across SKUs with varying cost and demand profiles."
       },
       {
         id: SCREEN_IDS.typesPurpose,
