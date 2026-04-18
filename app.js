@@ -224,7 +224,17 @@
       ? route
       : WELCOME_SCREEN_ID;
 
-    state.currentScreen = guardRoute(valid);
+    const resolved = guardRoute(valid);
+
+    // goTo() already called render() and set the hash. If the hash change was
+    // caused by goTo() (i.e. the resolved route matches what is already current),
+    // skip the redundant second render to avoid double-firing side effects such
+    // as sendResultsToBackend.
+    if (resolved === state.currentScreen) {
+      return;
+    }
+
+    state.currentScreen = resolved;
     persistState(false);
     render();
   }
@@ -1022,6 +1032,11 @@
     const confidenceValue = Number.isFinite(state.confidence) ? Number(state.confidence) : 50;
     const finalResults = computeFinalResults();
     const showInstructor = isInstructorViewEnabled();
+
+    // Send final scores to backend when all modules are complete.
+    if (finalResults.isComplete) {
+      sendResultsToBackend(finalResults);
+    }
     const instructorSummary = buildIntegritySummary();
 
     const detailRows = state.questionScreenIds.map(function (screenId) {
@@ -1531,6 +1546,57 @@
       recoveryCreditPercent: recoveryCreditPercent,
       encouragementMessage: buildEncouragementMessage(overallScore)
     };
+  }
+
+  /**
+   * sendResultsToBackend
+   * Fire-and-forget POST to the Cloudflare Worker → Apps Script backend.
+   * Does not block the UI or affect local scoring/display.
+   */
+  function sendResultsToBackend(finalResults) {
+    console.log("FINAL SUBMIT FUNCTION RAN");
+
+    var studentId     = String(state.studentToken      || "localtest").trim();
+    var canvasUserId  = String(state.canvasUserId      || "").trim();
+    var attemptNumber = Number(state.attemptNumber)    || 1;
+    var seed          = String(resolveSeedForExport()  || "localtest");
+    var moduleAScore  = Number(finalResults.moduleScores && finalResults.moduleScores.A) || 0;
+    var moduleBScore  = Number(finalResults.moduleScores && finalResults.moduleScores.B) || 0;
+    var moduleCScore  = Number(finalResults.moduleScores && finalResults.moduleScores.C) || 0;
+    var appScore      = Number(finalResults.overallScore)          || 0;
+    var recovery      = Number(finalResults.recoveryCreditPercent) || 0;
+
+    var payload = {
+      action:         "submitAttempt",
+      student_id:     studentId,
+      canvas_user_id: canvasUserId,
+      attempt_number: attemptNumber,
+      seed:           seed,
+      module_a:       moduleAScore,
+      module_b:       moduleBScore,
+      module_c:       moduleCScore,
+      app_score:      appScore,
+      recovery:       recovery,
+      submitted_at:   new Date().toISOString()
+    };
+
+    console.log("ABOUT TO SEND TO BACKEND", payload);
+
+    fetch("https://om-recovery-worker.michael-mejza.workers.dev/submit", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify(payload)
+    })
+      .then(function (res) {
+        console.log("Backend response status:", res.status);
+        return res.json().catch(function () { return {}; });
+      })
+      .then(function (body) {
+        console.log("Backend response body:", body);
+      })
+      .catch(function (err) {
+        console.error("Backend submit error:", err);
+      });
   }
 
   function resolveRecoveryPercent(overallScore) {
