@@ -1633,7 +1633,7 @@
       isComplete: true,
       overallScore: overallScore,
       recoveryCreditPercent: recoveryCreditPercent,
-      encouragementMessage: buildEncouragementMessage(overallScore)
+      encouragementMessage: buildEncouragementMessage(overallScore, state.attemptNumber)
     };
   }
 
@@ -1722,21 +1722,36 @@
     return rule ? Number(rule.recoveryPercent) : 0;
   }
 
-  function buildEncouragementMessage(overallScore) {
+  function buildEncouragementMessage(overallScore, attemptNumber) {
     const score = Number(overallScore);
+    const isFirstAttempt = !attemptNumber || Number(attemptNumber) <= 1;
+
+    if (score === 100) {
+      return "Perfect score. Outstanding work across all modules.";
+    }
     if (score >= 85) {
-      return "Excellent work. You showed strong recovery across all modules.";
+      return isFirstAttempt
+        ? "Excellent work. You may stop here or use your second attempt to push even higher."
+        : "Excellent work. You showed strong recovery across all modules.";
     }
     if (score >= 75) {
-      return "Great job. Your recovery effort was consistent and effective.";
+      return isFirstAttempt
+        ? "Great job. Consider using your second attempt — you have a strong foundation to build on."
+        : "Great job. Your recovery effort was consistent and effective.";
     }
     if (score >= 65) {
-      return "Good progress. Keep practicing to push your performance higher.";
+      return isFirstAttempt
+        ? "Good progress. Review the areas below and use your second attempt to improve."
+        : "Good progress. Review key concepts and build on this foundation.";
     }
     if (score >= 55) {
-      return "Solid effort. Review key concepts and build on this foundation.";
+      return isFirstAttempt
+        ? "Solid effort. Study the concepts covered in each module and use your second attempt."
+        : "Solid effort. Review key concepts and build on this foundation.";
     }
-    return "Keep going. Focus on the fundamentals and try another deliberate practice cycle.";
+    return isFirstAttempt
+      ? "Keep going. Review the fundamentals and use your second attempt to improve your score."
+      : "Keep going. Focus on the fundamentals before your instructor reviews your results.";
   }
 
   function buildFinalExportPayload(finalResults) {
