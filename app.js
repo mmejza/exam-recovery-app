@@ -8,6 +8,10 @@
   const MODULE_SEQUENCE = ["A", "B", "C"];
   const DEV_MODE = window.location.search.includes("dev=1");
   const RESET_ON_LOAD = window.location.search.includes("reset=1");
+  const PREFILL_TOKEN = (function () {
+    const p = new URLSearchParams(window.location.search).get("token");
+    return p ? p.trim() : "";
+  }());
   const WELCOME_SCREEN_ID = "welcome";
   const WELCOME_SCREEN = {
     id: WELCOME_SCREEN_ID,
@@ -110,6 +114,7 @@
   function reloadWithoutResetFlag() {
     const url = new URL(window.location.href);
     url.searchParams.delete("reset");
+    // keep ?token= so renderWelcome can pre-fill the field
     window.location.replace(url.toString());
   }
 
@@ -346,7 +351,8 @@
       "  </div>" +
       "  <div class='form-row'>" +
       "    <label for='student-token'>Student ID No.</label>" +
-      "    <input id='student-token' type='text' placeholder='Enter your token' value='" + escapeHtml(state.studentToken) + "' />" +
+      "    <input id='student-token' type='text' placeholder='Enter your token' value='" + escapeHtml(PREFILL_TOKEN || state.studentToken) + "'" + (PREFILL_TOKEN ? " readonly style='background:#f3f4f6;cursor:not-allowed;'" : "") + " />" +
+      (PREFILL_TOKEN ? "    <p style='font-size:0.85rem;color:#6b7280;margin-top:4px;'>Your Student ID No. has been carried over from your previous attempt.</p>" : "") +
       "  </div>" +
       "  <div class='consent-row'>" +
       "    <input id='policy-ack' type='checkbox' " + (state.consentAccepted ? "checked" : "") + " />" +
@@ -395,6 +401,12 @@
         }
 
         // Eligible — proceed with normal start flow
+        // Remove ?token= from URL bar now that it has been consumed
+        if (new URLSearchParams(window.location.search).has("token")) {
+          const cleanUrl = new URL(window.location.href);
+          cleanUrl.searchParams.delete("token");
+          window.history.replaceState(null, "", cleanUrl.toString());
+        }
         state.studentToken = token;
         state.consentAccepted = true;
         if (!state.appStartIso) {
@@ -1235,6 +1247,7 @@
             // Eligible — navigate to reset URL to start fresh
             const url = new URL(window.location.href);
             url.searchParams.set("reset", "1");
+            url.searchParams.set("token", token);
             window.location.href = url.toString();
           });
         });
