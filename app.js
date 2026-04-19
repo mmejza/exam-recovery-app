@@ -12,11 +12,6 @@
     const p = new URLSearchParams(window.location.search).get("token");
     return p ? p.trim() : "";
   }());
-  const PREV_SCORE = (function () {
-    const p = new URLSearchParams(window.location.search).get("score1");
-    const n = parseFloat(p);
-    return Number.isFinite(n) ? n : null;
-  }());
   const WELCOME_SCREEN_ID = "welcome";
   const WELCOME_SCREEN = {
     id: WELCOME_SCREEN_ID,
@@ -406,7 +401,9 @@
         }
 
         // Eligible — proceed with normal start flow
-        // Remove ?token= and ?score1= from URL bar now that they have been consumed\n        if (new URLSearchParams(window.location.search).has("token") || new URLSearchParams(window.location.search).has("score1")) {
+        // Remove ?token= from URL bar now that it has been consumed
+        // Remove ?token= and ?score1= from URL bar now that they have been consumed
+        if (new URLSearchParams(window.location.search).has("token") || new URLSearchParams(window.location.search).has("score1")) {
           const cleanUrl = new URL(window.location.href);
           cleanUrl.searchParams.delete("token");
           cleanUrl.searchParams.delete("score1");
@@ -1253,7 +1250,6 @@
             const url = new URL(window.location.href);
             url.searchParams.set("reset", "1");
             url.searchParams.set("token", token);
-            url.searchParams.set("score1", String(finalResults.overallScore));
             window.location.href = url.toString();
           });
         });
@@ -1639,7 +1635,7 @@
       isComplete: true,
       overallScore: overallScore,
       recoveryCreditPercent: recoveryCreditPercent,
-      encouragementMessage: buildEncouragementMessage(overallScore, state.attemptNumber, PREV_SCORE)
+      encouragementMessage: buildEncouragementMessage(overallScore, state.attemptNumber)
     };
   }
 
@@ -1728,62 +1724,36 @@
     return rule ? Number(rule.recoveryPercent) : 0;
   }
 
-  function buildEncouragementMessage(overallScore, attemptNumber, prevScore) {
+  function buildEncouragementMessage(overallScore, attemptNumber) {
     const score = Number(overallScore);
     const isFirstAttempt = !attemptNumber || Number(attemptNumber) <= 1;
 
-    // ── Attempt 1 messages ──────────────────────────────────────────────────
-    if (isFirstAttempt) {
-      if (score === 100) {
-        return "Perfect score. You have earned the maximum recovery credit available.";
-      }
-      if (score >= 85) {
-        return "Excellent work. You have reached the highest recovery tier. A second attempt is not needed, but is available if you choose.";
-      }
-      if (score >= 75) {
-        return "Great job. Consider using your second attempt — you have a strong foundation to build on.";
-      }
-      if (score >= 65) {
-        return "Good progress. Review the areas below and use your second attempt to improve.";
-      }
-      if (score >= 55) {
-        return "Solid effort. Study the concepts covered in each module and use your second attempt.";
-      }
-      return "Review the fundamentals carefully before starting your second attempt.";
-    }
-
-    // ── Attempt 2 messages (relative to attempt 1 where available) ──────────
-    const prev = Number.isFinite(prevScore) ? Number(prevScore) : null;
-    const improved = prev !== null && score > prev + 2;
-    const declined = prev !== null && score < prev - 2;
-
     if (score === 100) {
-      return "Perfect score. Outstanding performance across all modules.";
+      return "Perfect score. Outstanding work across all modules.";
     }
     if (score >= 85) {
-      if (improved) return "Strong improvement from attempt 1. You have earned the maximum recovery credit.";
-      if (declined) return "You earned the highest recovery tier. Your attempt 1 score was higher — your instructor will use whichever is best.";
-      return "Excellent performance. You have earned the maximum recovery credit.";
+      return isFirstAttempt
+        ? "Excellent work. You may stop here or use your second attempt to push even higher."
+        : "Excellent work. You showed strong recovery across all modules.";
     }
     if (score >= 75) {
-      if (improved) return "Good improvement from attempt 1. Your instructor will apply your highest score.";
-      if (declined) return "Your attempt 1 score was higher — your instructor will use whichever is best.";
-      return "Consistent performance across both attempts. Your instructor will apply your highest score.";
+      return isFirstAttempt
+        ? "Great job. Consider using your second attempt — you have a strong foundation to build on."
+        : "Great job. Your recovery effort was consistent and effective.";
     }
     if (score >= 65) {
-      if (improved) return "You improved from attempt 1. Your instructor will apply your highest score.";
-      if (declined) return "Your attempt 1 score was higher — your instructor will use whichever is best.";
-      return "Your instructor will apply your highest score toward your recovery credit.";
+      return isFirstAttempt
+        ? "Good progress. Review the areas below and use your second attempt to improve."
+        : "Good progress. Your instructor will apply your highest score toward your recovery credit.";
     }
     if (score >= 55) {
-      if (improved) return "You improved from attempt 1. Your instructor will apply your highest score.";
-      if (declined) return "Your attempt 1 score was higher — your instructor will use whichever is best.";
-      return "Your instructor will apply your highest score toward your recovery credit.";
+      return isFirstAttempt
+        ? "Solid effort. Study the concepts covered in each module and use your second attempt."
+        : "Solid effort. Your instructor will apply your highest score toward your recovery credit.";
     }
-    // score < 55, attempt 2
-    if (improved) return "You improved from attempt 1. Your instructor will apply your highest score.";
-    if (declined) return "Your attempt 1 score was higher — your instructor will use whichever is best.";
-    return "Your instructor will apply your highest score toward your recovery credit.";
+    return isFirstAttempt
+      ? "Keep going. Review the fundamentals and use your second attempt to improve your score."
+      : "Keep going. Your instructor will apply your highest score toward your recovery credit.";
   }
 
   function buildFinalExportPayload(finalResults) {
