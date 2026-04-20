@@ -346,17 +346,21 @@
       "    <ul>" +
       "      <li><strong>Open-resource policy:</strong> You may use notes and course materials.</li>" +
       "      <li><strong>Individual-work policy:</strong> Collaboration is not allowed.</li>" +
-      "      <li><strong>One-session rule:</strong> Complete this attempt in one continuous session.</li>" +
+      "      <li><strong>Identification policy:</strong> You must enter your official student ID number exactly as recorded by the institution.</li>" +
+      "      <li><strong>Verification policy:</strong> If you enter an incorrect student ID number, credit is not guaranteed and your submission may not be verifiable.</li>" +
+      "      <li><strong>Evidence policy:</strong> If your ID was entered incorrectly, you may submit supporting evidence for instructor review: a final summary screenshot, exported CSV/JSON files, and both the entered and correct student ID numbers.</li>" +
+      "      <li><strong>Credit determination:</strong> Instructor will compare submitted evidence against backend logs and course records before deciding whether credit can be awarded.</li>" +
       "    </ul>" +
       "  </div>" +
       "  <div class='form-row'>" +
       "    <label for='student-token'>Student ID No.</label>" +
       "    <input id='student-token' type='text' placeholder='Enter your token' value='" + escapeHtml(PREFILL_TOKEN || state.studentToken) + "'" + (PREFILL_TOKEN ? " readonly style='background:#f3f4f6;cursor:not-allowed;'" : "") + " />" +
+      "    <p style='font-size:0.9rem;color:#111827;margin-top:6px;'><strong>Student Token must be your official student ID number.</strong></p>" +
       (PREFILL_TOKEN ? "    <p style='font-size:0.85rem;color:#6b7280;margin-top:4px;'>Your Student ID No. has been carried over from your previous attempt.</p>" : "") +
       "  </div>" +
       "  <div class='consent-row'>" +
       "    <input id='policy-ack' type='checkbox' " + (state.consentAccepted ? "checked" : "") + " />" +
-      "    <label for='policy-ack'>I acknowledge and agree to all policies above.</label>" +
+      "    <label for='policy-ack'>I acknowledge and agree to all policies above, including the requirement to enter my official student ID number correctly.</label>" +
       "  </div>" +
       "  <button class='btn btn-primary' id='btn-start' type='button' disabled>Start Lab</button>" +
       "</section>";
