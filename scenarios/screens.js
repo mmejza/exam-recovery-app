@@ -37,7 +37,7 @@
     const annualDemand = Number(vars.annualDemand || 22000);
     const holdCost = Number(vars.holdCost || 2.8);
     const leadTimeDays = Number(vars.leadTimeDays || 10);
-    const demandPerDay = Number(vars.demandPerDay || 95);
+    const demandPerDay = roundTo(annualDemand / 365, 1);
     const productFamily = String(vars.productFamily || "general merchandise");
 
     const avgInventoryUnits = seeded.randomInt(

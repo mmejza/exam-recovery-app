@@ -16,7 +16,7 @@
         orderCost: { type: "int", min: 70, max: 210 },
         holdCost: { type: "float", min: 1.4, max: 4.8, decimals: 2 },
         leadTimeDays: { type: "int", min: 4, max: 19 },
-        demandPerDay: { type: "int", min: 55, max: 180 },
+  
         productFamily: {
           type: "choice",
           options: ["trail footwear", "team uniforms", "fitness accessories", "camping gear"]
