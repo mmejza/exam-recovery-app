@@ -80,6 +80,8 @@
     attemptNumber: 1,
     appStartIso: null,
     appEndIso: null,
+    backendSubmitStatus: "idle",
+    backendSubmitMessage: "",
     confidence: 50,
     continueConfirmed: false,
     lastSavedAt: null
@@ -199,6 +201,8 @@
     state.attemptNumber = Number(saved.attemptNumber) > 0 ? Number(saved.attemptNumber) : 1;
     state.appStartIso = saved.appStartIso || null;
     state.appEndIso = saved.appEndIso || null;
+    state.backendSubmitStatus = String(saved.backendSubmitStatus || "idle");
+    state.backendSubmitMessage = String(saved.backendSubmitMessage || "");
 
     const validCurrentScreen = state.currentScreen === WELCOME_SCREEN_ID || state.screenOrder.includes(state.currentScreen);
     if (!validCurrentScreen) {
@@ -369,6 +373,19 @@
     const ack = document.getElementById("policy-ack");
     const startBtn = document.getElementById("btn-start");
 
+    function showStartMessage(text, color) {
+      let msg = document.getElementById("attempt-limit-msg");
+      if (!msg) {
+        msg = document.createElement("p");
+        msg.id = "attempt-limit-msg";
+        msg.style.fontWeight = "bold";
+        msg.style.marginTop = "0.75rem";
+        startBtn.parentNode.insertBefore(msg, startBtn.nextSibling);
+      }
+      msg.style.color = color || "#555";
+      msg.textContent = text;
+    }
+
     function refreshStartEnabled() {
       const token = tokenInput.value.trim();
       startBtn.disabled = !(token && ack.checked);
@@ -387,20 +404,21 @@
       startBtn.disabled = true;
       startBtn.textContent = "Checking eligibility...";
 
-      checkAttemptLimit(token, function (allowed, count) {
-        if (!allowed) {
+      checkAttemptLimit(token, function (result) {
+        if (result.error) {
+          startBtn.disabled = false;
+          startBtn.textContent = "Start Lab";
+          showStartMessage(result.error, "#c0392b");
+          return;
+        }
+
+        if (!result.allowed) {
           startBtn.disabled = true;
           startBtn.textContent = "Attempt Limit Reached";
-          const existingMsg = document.getElementById("attempt-limit-msg");
-          if (!existingMsg) {
-            const msg = document.createElement("p");
-            msg.id = "attempt-limit-msg";
-            msg.style.color = "#c0392b";
-            msg.style.fontWeight = "bold";
-            msg.style.marginTop = "0.75rem";
-            msg.textContent = "You have already completed " + count + " attempt(s). The maximum is 2. Contact your instructor if you believe this is an error.";
-            startBtn.parentNode.insertBefore(msg, startBtn.nextSibling);
-          }
+          showStartMessage(
+            "You have already completed " + result.count + " attempt(s). The maximum is 2. Contact your instructor if you believe this is an error.",
+            "#c0392b"
+          );
           return;
         }
 
@@ -418,7 +436,7 @@
         if (!state.appStartIso) {
           state.appStartIso = new Date().toISOString();
         }
-        state.attemptNumber = count + 1;
+        state.attemptNumber = result.count + 1;
 
         if (!state.overallSecondsLeft || state.overallSecondsLeft <= 0) {
           state.overallSecondsLeft = OVERALL_LIMIT_SECONDS;
@@ -1099,7 +1117,7 @@
     const showInstructor = isInstructorViewEnabled();
 
     // Send final scores to backend when all modules are complete.
-    if (finalResults.isComplete) {
+    if (finalResults.isComplete && state.backendSubmitStatus === "idle") {
       sendResultsToBackend(finalResults);
     }
     const instructorSummary = buildIntegritySummary();
@@ -1135,6 +1153,8 @@
       "      <button class='btn btn-secondary' id='btn-export-csv' type='button'>Download CSV</button>" +
       "    </div>" +
       "    <p class='widget-note' id='export-status'></p>" +
+      "    <p class='widget-note' id='backend-submit-status'></p>" +
+      "    <button class='btn btn-secondary' id='btn-retry-submit' type='button' style='display:none'>Retry Backend Submit</button>" +
       "    <hr style='margin:1.5rem 0' />" +
       "    <h3>Start a New Attempt</h3>" +
       "    <p class='widget-note'>You may take up to 2 attempts. Starting a new attempt will clear this session.</p>" +
@@ -1213,6 +1233,18 @@
       const jsonBtn = document.getElementById("btn-export-json");
       const csvBtn = document.getElementById("btn-export-csv");
       const exportStatus = document.getElementById("export-status");
+      const retrySubmitBtn = document.getElementById("btn-retry-submit");
+
+      updateBackendSubmitUi();
+
+      if (retrySubmitBtn) {
+        retrySubmitBtn.addEventListener("click", function () {
+          state.backendSubmitStatus = "idle";
+          state.backendSubmitMessage = "";
+          persistState(false);
+          sendResultsToBackend(finalResults);
+        });
+      }
 
       if (jsonBtn) {
         jsonBtn.addEventListener("click", function () {
@@ -1241,12 +1273,22 @@
           const token = String(state.studentToken || "").trim();
           newAttemptBtn.disabled = true;
           newAttemptBtn.textContent = "Checking eligibility...";
-          checkAttemptLimit(token, function (allowed, count) {
-            if (!allowed) {
+          checkAttemptLimit(token, function (result) {
+            if (result.error) {
+              newAttemptBtn.disabled = false;
+              newAttemptBtn.textContent = "Start New Attempt";
+              if (newAttemptStatus) {
+                newAttemptStatus.style.color = "#c0392b";
+                newAttemptStatus.textContent = result.error;
+              }
+              return;
+            }
+
+            if (!result.allowed) {
               newAttemptBtn.textContent = "Attempt Limit Reached";
               if (newAttemptStatus) {
                 newAttemptStatus.style.color = "#c0392b";
-                newAttemptStatus.textContent = "You have already used " + count + " of 2 allowed attempts.";
+                newAttemptStatus.textContent = "You have already used " + result.count + " of 2 allowed attempts.";
               }
               return;
             }
@@ -1533,6 +1575,8 @@
       attemptNumber: 1,
       appStartIso: null,
       appEndIso: null,
+      backendSubmitStatus: "idle",
+      backendSubmitMessage: "",
       confidence: 50,
       continueConfirmed: false,
       lastSavedAt: null
@@ -1653,20 +1697,59 @@
     var MAX_ATTEMPTS = 2;
     var token = String(studentToken || "").trim();
     if (!token) {
-      callback(true, 0);
+      callback({ allowed: true, count: 0, error: null });
       return;
     }
     var url = "https://om-recovery-worker.michael-mejza.workers.dev/attempts?student_id=" + encodeURIComponent(token);
     fetch(url, { method: "GET" })
-      .then(function (res) { return res.json(); })
-      .then(function (body) {
-        var count = Number(body && body.count) || 0;
-        callback(count < MAX_ATTEMPTS, count);
+      .then(function (res) {
+        return res.json().catch(function () { return {}; }).then(function (body) {
+          return { ok: res.ok, body: body };
+        });
+      })
+      .then(function (result) {
+        if (!result.ok || !result.body || result.body.success === false) {
+          callback({
+            allowed: false,
+            count: 0,
+            error: "Unable to verify attempt eligibility right now. Check your connection and try again."
+          });
+          return;
+        }
+        var count = Number(result.body.count) || 0;
+        callback({ allowed: count < MAX_ATTEMPTS, count: count, error: null });
       })
       .catch(function (err) {
-        console.warn("checkAttemptLimit: network error, allowing attempt.", err);
-        callback(true, 0);
+        console.warn("checkAttemptLimit: network error.", err);
+        callback({
+          allowed: false,
+          count: 0,
+          error: "Unable to verify attempt eligibility right now. Check your connection and try again."
+        });
       });
+  }
+
+  function updateBackendSubmitUi() {
+    var statusNode = document.getElementById("backend-submit-status");
+    var retryBtn = document.getElementById("btn-retry-submit");
+    if (!statusNode) {
+      return;
+    }
+
+    if (state.backendSubmitStatus === "pending") {
+      statusNode.textContent = state.backendSubmitMessage || "Submitting final results to backend...";
+    } else if (state.backendSubmitStatus === "success") {
+      statusNode.textContent = state.backendSubmitMessage || "Final results recorded successfully.";
+    } else if (state.backendSubmitStatus === "failed") {
+      statusNode.textContent = state.backendSubmitMessage || "Backend submission failed. Retry below.";
+    } else {
+      statusNode.textContent = "";
+    }
+
+    if (retryBtn) {
+      retryBtn.style.display = state.backendSubmitStatus === "failed" ? "inline-block" : "none";
+      retryBtn.disabled = state.backendSubmitStatus === "pending";
+    }
   }
 
   /**
@@ -1675,11 +1758,15 @@
    * Does not block the UI or affect local scoring/display.
    */
   function sendResultsToBackend(finalResults) {
+    if (state.backendSubmitStatus === "pending" || state.backendSubmitStatus === "success") {
+      updateBackendSubmitUi();
+      return;
+    }
+
     console.log("FINAL SUBMIT FUNCTION RAN");
 
     var studentId     = String(state.studentToken      || "localtest").trim();
     var canvasUserId  = String(state.canvasUserId      || "").trim();
-    var attemptNumber = Number(state.attemptNumber)    || 1;
     var seed          = String(resolveSeedForExport()  || "localtest");
     var moduleAScore  = Number(finalResults.moduleScores && finalResults.moduleScores.A) || 0;
     var moduleBScore  = Number(finalResults.moduleScores && finalResults.moduleScores.B) || 0;
@@ -1691,7 +1778,6 @@
       action:         "submitAttempt",
       student_id:     studentId,
       canvas_user_id: canvasUserId || "unset",
-      attempt_number: attemptNumber,
       seed:           seed,
       module_a:       moduleAScore,
       module_b:       moduleBScore,
@@ -1703,19 +1789,45 @@
 
     console.log("ABOUT TO SEND TO BACKEND", payload);
 
+    state.backendSubmitStatus = "pending";
+    state.backendSubmitMessage = "Submitting final results to backend...";
+    persistState(false);
+    updateBackendSubmitUi();
+
     fetch("https://om-recovery-worker.michael-mejza.workers.dev/submit", {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
       body:    JSON.stringify(payload)
     })
       .then(function (res) {
-        console.log("Backend response status:", res.status);
-        return res.json().catch(function () { return {}; });
+        return res.json().catch(function () { return {}; }).then(function (body) {
+          return { ok: res.ok, status: res.status, body: body };
+        });
       })
-      .then(function (body) {
+      .then(function (result) {
+        var body = result.body || {};
+        if (!result.ok || body.success === false) {
+          throw new Error(String(body.message || ("Backend submit failed (HTTP " + result.status + ").")));
+        }
+
+        var assignedAttempt = Number(body.assignedAttempt);
+        if (assignedAttempt > 0) {
+          state.attemptNumber = assignedAttempt;
+        }
+
+        state.backendSubmitStatus = "success";
+        state.backendSubmitMessage = assignedAttempt > 0
+          ? "Final results recorded. Attempt #" + assignedAttempt + " confirmed."
+          : "Final results recorded successfully.";
+        persistState(false);
+        updateBackendSubmitUi();
         console.log("Backend response body:", body);
       })
       .catch(function (err) {
+        state.backendSubmitStatus = "failed";
+        state.backendSubmitMessage = String(err && err.message ? err.message : "Backend submit error. Please retry.");
+        persistState(false);
+        updateBackendSubmitUi();
         console.error("Backend submit error:", err);
       });
   }

@@ -22,6 +22,7 @@
 // ---------------------------------------------------------------------------
 
 var SHEET_NAME = "Attempts";
+var MAX_ATTEMPTS = 2;
 
 // Column order must match the Attempts sheet exactly (left to right).
 var COLUMNS = [
@@ -43,7 +44,6 @@ var COLUMNS = [
 // canvas_user_id is optional — it may be mapped later by the instructor.
 var REQUIRED_FIELDS = [
   "student_id",
-  "attempt_number",
   "seed",
   "module_a",
   "module_b",
@@ -85,6 +85,19 @@ function jsonResponse(obj) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+function countAttemptsForStudent(rows, studentId) {
+  var studentIdColIndex = COLUMNS.indexOf("student_id");
+  if (studentIdColIndex < 0) { studentIdColIndex = 0; }
+
+  var count = 0;
+  for (var i = 1; i < rows.length; i++) {
+    if (String(rows[i][studentIdColIndex]).trim() === studentId) {
+      count++;
+    }
+  }
+  return count;
+}
+
 
 // ---------------------------------------------------------------------------
 // ENTRY POINT
@@ -98,7 +111,6 @@ function jsonResponse(obj) {
  * {
  *   "student_id":      "ABC123",
  *   "canvas_user_id":  "456",
- *   "attempt_number":  1,
  *   "seed":            "98765",
  *   "module_a":        82,
  *   "module_b":        75,
@@ -109,10 +121,13 @@ function jsonResponse(obj) {
  *   "started_at":      "2026-04-17T10:00:00Z"   // optional — defaults to server time
  * }
  *
- * Success response:  { "success": true,  "message": "Attempt recorded" }
+ * attempt_number is assigned by the backend at submit time.
+ *
+ * Success response:  { "success": true, "message": "Attempt recorded", "assignedAttempt": 1 }
  * Failure response:  { "success": false, "message": "<error details>"  }
  */
 function doPost(e) {
+  var lock = null;
   try {
     // --- 1. Parse JSON body ---
     if (!e || !e.postData || !e.postData.contents) {
@@ -134,11 +149,30 @@ function doPost(e) {
       throw new Error("Missing required fields: " + missing.join(", "));
     }
 
-    // --- 3. Build the row in column order ---
+    var studentId = String(data.student_id || "").trim();
+    if (!studentId) {
+      throw new Error("Missing student_id.");
+    }
+
+    // --- 3. Assign attempt number under lock (prevents duplicates) ---
+    lock = LockService.getScriptLock();
+    lock.waitLock(30000);
+
+    var sheet = getAttemptsSheet();
+    var allRows = sheet.getDataRange().getValues();
+    var existingCount = countAttemptsForStudent(allRows, studentId);
+    if (existingCount >= MAX_ATTEMPTS) {
+      throw new Error("Attempt limit reached for this student.");
+    }
+
+    var assignedAttempt = existingCount + 1;
     var now = new Date();
 
     var row = COLUMNS.map(function (col) {
       switch (col) {
+        case "attempt_number":
+          return assignedAttempt;
+
         case "status":
           // Default to "submitted" if the frontend did not specify
           return data.status || "submitted";
@@ -157,14 +191,21 @@ function doPost(e) {
     });
 
     // --- 4. Append row to sheet ---
-    var sheet = getAttemptsSheet();
     sheet.appendRow(row);
 
-    return jsonResponse({ success: true, message: "Attempt recorded" });
+    return jsonResponse({ success: true, message: "Attempt recorded", assignedAttempt: assignedAttempt });
 
   } catch (err) {
     // Return a clean JSON error — never expose a raw Apps Script exception page
     return jsonResponse({ success: false, message: err.message });
+  } finally {
+    if (lock) {
+      try {
+        lock.releaseLock();
+      } catch (_) {
+        // no-op
+      }
+    }
   }
 }
 
@@ -191,18 +232,7 @@ function doGet(e) {
 
     var sheet = getAttemptsSheet();
     var data = sheet.getDataRange().getValues();
-
-    // Find the student_id column index (column 0 per COLUMNS definition)
-    var studentIdColIndex = COLUMNS.indexOf("student_id");
-    if (studentIdColIndex < 0) { studentIdColIndex = 0; }
-
-    // Count rows (skip header row 0) matching this student_id
-    var count = 0;
-    for (var i = 1; i < data.length; i++) {
-      if (String(data[i][studentIdColIndex]).trim() === studentId) {
-        count++;
-      }
-    }
+    var count = countAttemptsForStudent(data, studentId);
 
     return jsonResponse({ success: true, count: count });
 
